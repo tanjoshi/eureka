@@ -1,5 +1,10 @@
 apply plugin: 'war'
 
+// Exclude old Servlet 2.5 API from test runtime to avoid conflict with Jetty 9's Servlet 3.1+ API
+configurations.testRuntimeClasspath {
+    exclude group: 'javax.servlet', module: 'servlet-api'
+}
+
 dependencies {
     api project(':eureka-client')
     api project(':eureka-core')
@@ -17,6 +22,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.eclipse.jetty:jetty-server:$jetty_version"
     testImplementation "org.eclipse.jetty:jetty-webapp:$jetty_version"
+    testImplementation "javax.servlet:javax.servlet-api:4.0.1"
 }
 
 task copyLibs(type: Copy) {

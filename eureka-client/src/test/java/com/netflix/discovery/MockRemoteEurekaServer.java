@@ -23,10 +23,9 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import org.junit.Assert;
 import org.junit.rules.ExternalResource;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.AbstractHandler;
 
 /**
  * @author Nitesh Kant
@@ -74,7 +73,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
         server = new Server(port);
         server.setHandler(new AppsResourceHandler());
         server.start();
-        port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+        port = server.getConnectors()[0].getLocalPort();
     }
 
     public int getPort() {
@@ -136,7 +135,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
     private class AppsResourceHandler extends AbstractHandler {
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
                 throws IOException, ServletException {
             String authName = request.getHeader(AbstractEurekaIdentity.AUTH_NAME_HEADER_KEY);
             String authVersion = request.getHeader(AbstractEurekaIdentity.AUTH_VERSION_HEADER_KEY);
@@ -166,7 +165,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
                         System.out.println("Eureka port: " + port + ". " + System.currentTimeMillis() + ". Not including delta as it has already been sent.");
                     }
                     apps.setAppsHashCode(getDeltaAppsHashCode(includeRemote));
-                    sendOkResponseWithContent(baseRequest, response, apps);
+                    sendOkResponseWithContent((Request) request, response, apps);
                     handled = true;
                 } else if (pathInfo.equals("apps/")) {
                     getFullRegistryCount.getAndIncrement();
@@ -188,7 +187,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
                         System.out.println("Eureka port: " + port + ". " + System.currentTimeMillis() + ". Not including delta apps in /apps response, as delta has not been sent.");
                     }
                     apps.setAppsHashCode(apps.getReconcileHashCode());
-                    sendOkResponseWithContent(baseRequest, response, apps);
+                    sendOkResponseWithContent((Request) request, response, apps);
                     sentRegistry.set(true);
                     handled = true;
                 } else if (pathInfo.startsWith("vips/")) {
@@ -211,7 +210,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
                     }
 
                     apps.setAppsHashCode(apps.getReconcileHashCode());
-                    sendOkResponseWithContent(baseRequest, response, apps);
+                    sendOkResponseWithContent((Request) request, response, apps);
                     handled = true;
                 } else if (pathInfo.startsWith("apps")) {  // assume this is the renewal heartbeat
                     if (request.getMethod().equals("PUT")) {  // this is the renewal heartbeat
@@ -260,7 +259,7 @@ public class MockRemoteEurekaServer extends ExternalResource {
                     }
                     Applications apps = new Applications();
                     apps.setAppsHashCode("");
-                    sendOkResponseWithContent(baseRequest, response, apps);
+                    sendOkResponseWithContent((Request) request, response, apps);
                     handled = true;
                 } else {
                     System.out.println("Not handling request: " + pathInfo);

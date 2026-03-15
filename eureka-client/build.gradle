@@ -16,7 +16,6 @@ dependencies {
     api "com.google.code.findbugs:jsr305:${jsr305Version}"
     api "commons-configuration:commons-configuration:${commonsConfigurationVersion}"
     api "com.google.inject:guice:${guiceVersion}"
-    api "javax.annotation:javax.annotation-api:1.3.2"
 
     api "com.github.vlsi.compactmap:compactmap:2.0"
 
@@ -33,8 +32,7 @@ dependencies {
 
     testImplementation project(':eureka-test-utils')
     testImplementation "junit:junit:${junit_version}"
-    testImplementation "org.eclipse.jetty:jetty-server:${jetty_version}"
-    testImplementation "org.eclipse.jetty:jetty-servlet:${jetty_version}"
+    testImplementation 'org.mortbay.jetty:jetty:6.1H.22'
     testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
     testImplementation "org.mock-server:mockserver-netty:${mockserverVersion}"
     testImplementation "com.netflix.governator:governator:${governatorVersion}"

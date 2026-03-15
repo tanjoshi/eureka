@@ -239,6 +239,7 @@ public class EurekaClientServerRestIntegrationTest {
         WebAppContext webapp = new WebAppContext();
         webapp.setContextPath("/");
         webapp.setWar(warFile.getAbsolutePath());
+        webapp.setParentLoaderPriority(true); // Use server's Servlet 3.1 API instead of WAR's bundled 2.5
         server.setHandler(webapp);
 
         server.start();

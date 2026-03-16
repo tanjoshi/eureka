@@ -1,5 +1,10 @@
 apply plugin: 'war'
 
+// Exclude old JAX-RS 1.1 API to avoid split-package conflict with JAX-RS 2.1 (required by Jersey 2)
+configurations.all {
+    exclude module: 'jsr311-api'
+}
+
 // Exclude old Servlet 2.5 API from test runtime to avoid conflict with Jetty 9's Servlet 3.1+ API
 configurations.testRuntimeClasspath {
     exclude group: 'javax.servlet', module: 'servlet-api'
@@ -8,15 +13,17 @@ configurations.testRuntimeClasspath {
 dependencies {
     api project(':eureka-client')
     api project(':eureka-core')
-    api "com.sun.jersey:jersey-server:$jerseyVersion"
-    api "com.sun.jersey:jersey-servlet:$jerseyVersion"
+    // Jersey 2 server for WAR deployment (Jersey 1's bundled ASM cannot parse Java 11 bytecode)
+    api "org.glassfish.jersey.containers:jersey-container-servlet:$jersey2Version"
+    api "org.glassfish.jersey.inject:jersey-hk2:$jersey2Version"
+    api "javax.ws.rs:javax.ws.rs-api:2.1.1"
     api 'org.slf4j:slf4j-log4j12:1.6.1'
     api 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
 
     runtimeOnly 'xerces:xercesImpl:2.12.0'
     runtimeOnly "org.codehaus.jettison:jettison:${jettisonVersion}"
 
-    compileOnly "javax.servlet:servlet-api:$servletVersion"
+    compileOnly "javax.servlet:javax.servlet-api:4.0.1"
 
     testImplementation project(':eureka-test-utils')
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"

@@ -5,15 +5,13 @@ plugins {
 
 idea {
     project {
-        languageLevel = '1.8'
+        languageLevel = '11'
     }
 }
 
-if (JavaVersion.current().isJava8Compatible()) {
-    allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
+allprojects {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
 }
 
@@ -24,6 +22,7 @@ allprojects {
         awsVersion = '1.11.277'
         servletVersion = '2.5'
         jerseyVersion = '1.19.1'
+        jersey2Version = '2.35'
         jettisonVersion = '1.5.4'
         apacheHttpClientVersion = '4.5.3'
         commonsConfigurationVersion = '1.10'
@@ -37,7 +36,7 @@ allprojects {
         woodstoxVersion = '5.2.1'
 
         // test deps
-        jetty_version = '7.2.0.v20101020'
+        jetty_version = '9.4.44.v20210927'
         junit_version = '4.11'
         mockitoVersion = '3.4.0'
         mockserverVersion = '3.9.2'
@@ -50,8 +49,8 @@ subprojects {
 
     group = "com.netflix.${githubProjectName}"
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     repositories {
         mavenCentral()
@@ -61,6 +60,9 @@ subprojects {
         forkEvery = 1
         // setting this property prevents java from grabbing focus when running the tests under osx
         systemProperty 'java.awt.headless', 'true'
+
+        // Required for Guice/cglib compatibility with Java 11+
+        jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
     }
 
     jar {

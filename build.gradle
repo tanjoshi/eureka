@@ -20,7 +20,7 @@ allprojects {
         githubProjectName = 'eureka'
 
         awsVersion = '1.11.277'
-        servletVersion = '2.5'
+        servletVersion = '4.0.1'
         jerseyVersion = '1.19.1'
         jersey2Version = '2.35'
         jettisonVersion = '1.5.4'
@@ -37,7 +37,7 @@ allprojects {
 
         // test deps
         jetty_version = '9.4.44.v20210927'
-        junit_version = '4.11'
+        junit_version = '4.13.2'
         mockitoVersion = '3.4.0'
         mockserverVersion = '3.9.2'
     }

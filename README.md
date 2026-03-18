@@ -7,8 +7,7 @@ discovery, load balancing and failover of middle-tier servers. It plays a critic
 
 Building
 --------
-The build requires `java8` because of some required libraries that are `java8` (`servo`), but the source and target
-compatibility are still set to `1.7`. Note that tags should be checked out to perform a build.
+The build requires Java 11 or later. Source and target compatibility are set to Java 11.
 
 Contributing
 ------------

@@ -47,6 +47,7 @@ public class EurekaContextListener extends GovernatorServletContextListener {
 
         LifecycleInjector injector = EurekaInjectorCreator.createInjector();
         serverContext = injector.getInstance(EurekaServerContext.class);
+        EurekaServerContextHolder.initialize(serverContext);
         return injector;
     }
 }

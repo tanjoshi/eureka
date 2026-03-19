@@ -18,26 +18,28 @@ package com.netflix.discovery.junit.resource;
 
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.SimpleEurekaHttpServer;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Tomasz Bak
  */
-public class SimpleEurekaHttpServerResource extends ExternalResource {
+public class SimpleEurekaHttpServerResource implements BeforeEachCallback, AfterEachCallback {
 
     private final EurekaHttpClient requestHandler = mock(EurekaHttpClient.class);
 
     private SimpleEurekaHttpServer eurekaHttpServer;
 
     @Override
-    protected void before() throws Throwable {
+    public void beforeEach(ExtensionContext context) throws Exception {
         eurekaHttpServer = new SimpleEurekaHttpServer(requestHandler);
     }
 
     @Override
-    protected void after() {
+    public void afterEach(ExtensionContext context) {
         if (eurekaHttpServer != null) {
             eurekaHttpServer.shutdown();
         }

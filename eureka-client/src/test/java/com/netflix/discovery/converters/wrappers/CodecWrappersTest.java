@@ -1,7 +1,7 @@
 package com.netflix.discovery.converters.wrappers;
 
-import junit.framework.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -17,13 +17,13 @@ public class CodecWrappersTest {
 
     @Test
     public void testRegisterNewWrapper() {
-        Assert.assertNull(CodecWrappers.getEncoder(testWrapperName));
-        Assert.assertNull(CodecWrappers.getDecoder(testWrapperName));
+        Assertions.assertNull(CodecWrappers.getEncoder(testWrapperName));
+        Assertions.assertNull(CodecWrappers.getDecoder(testWrapperName));
 
         CodecWrappers.registerWrapper(new TestWrapper());
 
-        Assert.assertNotNull(CodecWrappers.getEncoder(testWrapperName));
-        Assert.assertNotNull(CodecWrappers.getDecoder(testWrapperName));
+        Assertions.assertNotNull(CodecWrappers.getEncoder(testWrapperName));
+        Assertions.assertNotNull(CodecWrappers.getDecoder(testWrapperName));
     }
 
     private final class TestWrapper implements CodecWrapper {

@@ -15,14 +15,14 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.util.EurekaEntityFunctions;
 import com.netflix.discovery.util.InstanceInfoGenerator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockserver.client.server.MockServerClient;
-import org.mockserver.junit.MockServerRule;
+import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.Times;
+import org.mockserver.socket.PortFactory;
 import org.mockserver.model.Header;
 
 import static org.mockserver.model.HttpRequest.request;
@@ -41,56 +41,77 @@ public class DiscoveryClientRedirectTest {
 
     private final InstanceInfo myInstanceInfo = InstanceInfoGenerator.takeOne();
 
-    @Rule
-    public MockServerRule redirectServerMockRule = new MockServerRule(this);
+    private ClientAndServer redirectServer;
     private MockServerClient redirectServerMockClient;
 
     private MockClientHolder targetServerMockClient = new MockClientHolder();
-    @Rule
-    public MockServerRule targetServerMockRule = new MockServerRule(targetServerMockClient);
+    private ClientAndServer targetServer;
 
-    @Rule
-    public DiscoveryClientResource registryFetchClientRule = DiscoveryClientResource.newBuilder()
-            .withRegistration(false)
-            .withRegistryFetch(true)
-            .withPortResolver(new Callable<Integer>() {
-                @Override
-                public Integer call() throws Exception {
-                    return redirectServerMockRule.getHttpPort();
-                }
-            })
-            .withInstanceInfo(myInstanceInfo)
-            .build();
-    @Rule
-    public DiscoveryClientResource registeringClientRule = DiscoveryClientResource.newBuilder()
-            .withRegistration(true)
-            .withRegistryFetch(false)
-            .withPortResolver(new Callable<Integer>() {
-                @Override
-                public Integer call() throws Exception {
-                    return redirectServerMockRule.getHttpPort();
-                }
-            })
-            .withInstanceInfo(myInstanceInfo)
-            .build();
+    private DiscoveryClientResource registryFetchClientRule;
+    private DiscoveryClientResource registeringClientRule;
 
     private String targetServerBaseUri;
 
     private final InstanceInfoGenerator dataGenerator = InstanceInfoGenerator.newBuilder(2, 1).withMetaData(true).build();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        targetServerBaseUri = "http://localhost:" + targetServerMockRule.getHttpPort();
+        int redirectServerPort = PortFactory.findFreePort();
+        redirectServer = ClientAndServer.startClientAndServer(redirectServerPort);
+        redirectServerMockClient = new MockServerClient("localhost", redirectServerPort);
+
+        int targetServerPort = PortFactory.findFreePort();
+        targetServer = ClientAndServer.startClientAndServer(targetServerPort);
+        targetServerMockClient.client = new MockServerClient("localhost", targetServerPort);
+
+        final int redirectPort = redirectServerPort;
+        registryFetchClientRule = DiscoveryClientResource.newBuilder()
+                .withRegistration(false)
+                .withRegistryFetch(true)
+                .withPortResolver(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        return redirectPort;
+                    }
+                })
+                .withInstanceInfo(myInstanceInfo)
+                .build();
+        registeringClientRule = DiscoveryClientResource.newBuilder()
+                .withRegistration(true)
+                .withRegistryFetch(false)
+                .withPortResolver(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        return redirectPort;
+                    }
+                })
+                .withInstanceInfo(myInstanceInfo)
+                .build();
+        registryFetchClientRule.beforeEach(null);
+        registeringClientRule.beforeEach(null);
+
+        targetServerBaseUri = "http://localhost:" + targetServerPort;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
+        if (registryFetchClientRule != null) {
+            registryFetchClientRule.afterEach(null);
+        }
+        if (registeringClientRule != null) {
+            registeringClientRule.afterEach(null);
+        }
         if (redirectServerMockClient != null) {
             redirectServerMockClient.reset();
         }
-
         if (targetServerMockClient.client != null) {
             targetServerMockClient.client.reset();
+        }
+        if (redirectServer != null) {
+            redirectServer.stop();
+        }
+        if (targetServer != null) {
+            targetServer.stop();
         }
     }
 
@@ -148,7 +169,7 @@ public class DiscoveryClientRedirectTest {
     }
 
     // There is an issue with using mock-server for this test case.  For now it is verified manually that it works.
-    @Ignore
+    @Disabled
     @Test
     public void testClientRegistrationFollowsRedirectsAndPinsToTargetServer() throws Exception {
     }

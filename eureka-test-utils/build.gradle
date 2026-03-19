@@ -1,5 +1,7 @@
 dependencies {
     api project(':eureka-core')
-    api "junit:junit:${junit_version}"
+    api platform("org.junit:junit-bom:${junit_version}")
+    api 'org.junit.jupiter:junit-jupiter'
     api "org.mockito:mockito-core:${mockitoVersion}"
+    api 'org.hamcrest:hamcrest:2.2'
 }

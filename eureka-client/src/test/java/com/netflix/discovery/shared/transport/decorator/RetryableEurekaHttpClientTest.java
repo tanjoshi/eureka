@@ -32,14 +32,16 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 import com.netflix.discovery.shared.transport.TransportException;
 import com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.RequestExecutor;
 import com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.RequestType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Matchers;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -68,7 +70,7 @@ public class RetryableEurekaHttpClientTest {
 
     private List<EurekaHttpClient> clusterDelegates;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(transportConfig.getRetryableClientQuarantineRefreshPercentage()).thenReturn(0.66);
 
@@ -117,10 +119,12 @@ public class RetryableEurekaHttpClientTest {
         verify(requestExecutor, times(1)).execute(clusterDelegates.get(1));
     }
 
-    @Test(expected = TransportException.class)
+    @Test
     public void testErrorResponseIsReturnedIfRetryLimitIsReached() throws Exception {
         simulateTransportError(0, NUMBER_OF_RETRIES + 1);
-        retryableClient.execute(requestExecutor);
+        Assertions.assertThrows(TransportException.class, () -> {
+            retryableClient.execute(requestExecutor);
+        });
     }
 
     @Test
@@ -152,7 +156,8 @@ public class RetryableEurekaHttpClientTest {
         verify(requestExecutor, times(1)).execute(clusterDelegates.get(1));
     }
 
-    @Test(timeout = 10000)
+    @Test
+    @Timeout(10)
     public void testConcurrentRequestsLeaveLastSuccessfulDelegate() throws Exception {
         when(clientFactory.newClient(Matchers.<EurekaEndpoint>anyVararg())).thenReturn(clusterDelegates.get(0), clusterDelegates.get(1));
 

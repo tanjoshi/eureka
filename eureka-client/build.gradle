@@ -32,7 +32,8 @@ dependencies {
     runtimeOnly "org.codehaus.jettison:jettison:${jettisonVersion}"
 
     testImplementation project(':eureka-test-utils')
-    testImplementation "junit:junit:${junit_version}"
+    testImplementation platform("org.junit:junit-bom:${junit_version}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation "org.eclipse.jetty:jetty-server:${jetty_version}"
     testImplementation "org.eclipse.jetty:jetty-servlet:${jetty_version}"
     testImplementation "org.mockito:mockito-inline:${mockitoVersion}"

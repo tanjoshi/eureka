@@ -21,8 +21,10 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-import org.junit.Assert;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -31,7 +33,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 /**
  * @author Nitesh Kant
  */
-public class MockRemoteEurekaServer extends ExternalResource {
+public class MockRemoteEurekaServer implements BeforeEachCallback, AfterEachCallback {
 
     public static final String EUREKA_API_BASE_PATH = "/eureka/v2/";
 
@@ -57,16 +59,16 @@ public class MockRemoteEurekaServer extends ExternalResource {
     public final AtomicLong getDeltaCount = new AtomicLong(0);
 
     @Override
-    protected void before() throws Throwable {
+    public void beforeEach(ExtensionContext context) throws Exception {
         start();
     }
 
     @Override
-    protected void after() {
+    public void afterEach(ExtensionContext context) {
         try {
             stop();
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 
@@ -142,9 +144,9 @@ public class MockRemoteEurekaServer extends ExternalResource {
             String authVersion = request.getHeader(AbstractEurekaIdentity.AUTH_VERSION_HEADER_KEY);
             String authId = request.getHeader(AbstractEurekaIdentity.AUTH_ID_HEADER_KEY);
 
-            Assert.assertEquals(EurekaClientIdentity.DEFAULT_CLIENT_NAME, authName);
-            Assert.assertNotNull(authVersion);
-            Assert.assertNotNull(authId);
+            Assertions.assertEquals(EurekaClientIdentity.DEFAULT_CLIENT_NAME, authName);
+            Assertions.assertNotNull(authVersion);
+            Assertions.assertNotNull(authId);
 
             String pathInfo = request.getPathInfo();
             System.out.println("Eureka port: " + port + ". " + System.currentTimeMillis() +

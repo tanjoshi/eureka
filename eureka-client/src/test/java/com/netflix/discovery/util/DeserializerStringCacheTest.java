@@ -10,13 +10,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.netflix.discovery.util.DeserializerStringCache.CacheScope;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DeserializerStringCacheTest {
 
@@ -79,7 +79,7 @@ public class DeserializerStringCacheTest {
             second = cache.apply(p2, CacheScope.APPLICATION_SCOPE);
         }
 
-        assertSame("Cache hit should return identical instance", first, second);
+        assertSame(first, second, "Cache hit should return identical instance");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class DeserializerStringCacheTest {
         String first = cache.apply(new String("testValue"), CacheScope.APPLICATION_SCOPE);
         String second = cache.apply(new String("testValue"), CacheScope.APPLICATION_SCOPE);
 
-        assertSame("Cache hit should return identical instance", first, second);
+        assertSame(first, second, "Cache hit should return identical instance");
     }
 
     @Test
@@ -102,7 +102,7 @@ public class DeserializerStringCacheTest {
         }
         String fromString = cache.apply(new String("testValue"), CacheScope.APPLICATION_SCOPE);
 
-        assertSame("Cache should work across parser and string lookups", fromParser, fromString);
+        assertSame(fromParser, fromString, "Cache should work across parser and string lookups");
     }
 
     @Test
@@ -122,7 +122,7 @@ public class DeserializerStringCacheTest {
             cache.apply(p2, CacheScope.APPLICATION_SCOPE, countingTransform);
         }
 
-        assertEquals("Transform should only be called once (on cache miss)", 1, callCount.get());
+        assertEquals(1, callCount.get(), "Transform should only be called once (on cache miss)");
     }
 
     @Test
@@ -149,15 +149,15 @@ public class DeserializerStringCacheTest {
         try (JsonParser p3 = createParser("globalKey")) {
             globalAgain = cache.apply(p3, CacheScope.GLOBAL_SCOPE);
         }
-        assertSame("Global value should survive application scope clear", globalValue, globalAgain);
+        assertSame(globalValue, globalAgain, "Global value should survive application scope clear");
 
         // Application scope was cleared, so this should be a new instance
         String appAgain;
         try (JsonParser p4 = createParser("appKey")) {
             appAgain = cache.apply(p4, CacheScope.APPLICATION_SCOPE);
         }
-        assertNotSame("Application value should be new after clear", appValue, appAgain);
-        assertEquals("Application value should have same content", appValue, appAgain);
+        assertNotSame(appValue, appAgain, "Application value should be new after clear");
+        assertEquals(appValue, appAgain, "Application value should have same content");
     }
 
     @Test
@@ -189,8 +189,8 @@ public class DeserializerStringCacheTest {
             appAgain = cache.apply(p4, CacheScope.APPLICATION_SCOPE);
         }
 
-        assertNotSame("Global value should be new after global clear", globalValue, globalAgain);
-        assertNotSame("Application value should be new after global clear", appValue, appAgain);
+        assertNotSame(globalValue, globalAgain, "Global value should be new after global clear");
+        assertNotSame(appValue, appAgain, "Application value should be new after global clear");
     }
 
     @Test
@@ -202,14 +202,14 @@ public class DeserializerStringCacheTest {
         try (JsonParser p1 = createParser("value")) {
             cached = cache.apply(p1, CacheScope.APPLICATION_SCOPE);
         }
-        assertEquals("Should extract correct value", "value", cached);
+        assertEquals("value", cached, "Should extract correct value");
 
         // Verify same value from different parse returns cached instance
         String cachedAgain;
         try (JsonParser p2 = createParser("value")) {
             cachedAgain = cache.apply(p2, CacheScope.APPLICATION_SCOPE);
         }
-        assertSame("Should match cache entry", cached, cachedAgain);
+        assertSame(cached, cachedAgain, "Should match cache entry");
     }
 
     @Test
@@ -233,8 +233,8 @@ public class DeserializerStringCacheTest {
             uppercase = cache.apply(p2, CacheScope.APPLICATION_SCOPE, new UpperCaseTransform());
         }
 
-        assertEquals("Lowercase should be 'app'", "app", lowercase);
-        assertEquals("Uppercase should be 'APP'", "APP", uppercase);
-        assertNotSame("Different transforms should cache separately", lowercase, uppercase);
+        assertEquals("app", lowercase, "Lowercase should be 'app'");
+        assertEquals("APP", uppercase, "Uppercase should be 'APP'");
+        assertNotSame(lowercase, uppercase, "Different transforms should cache separately");
     }
 }

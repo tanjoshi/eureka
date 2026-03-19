@@ -16,18 +16,18 @@ import com.netflix.discovery.shared.transport.SimpleEurekaHttpServer;
 import com.netflix.discovery.util.InstanceInfoGenerator;
 import com.netflix.eventbus.spi.EventBus;
 import com.netflix.eventbus.spi.Subscribe;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 import static com.netflix.discovery.util.EurekaEntityFunctions.toApplications;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -42,7 +42,7 @@ public class DiscoveryClientEventBusTest {
     private static final EurekaHttpClient requestHandler = mock(EurekaHttpClient.class);
     private static SimpleEurekaHttpServer eurekaHttpServer;
 
-    @Rule
+    @RegisterExtension
     public DiscoveryClientResource discoveryClientResource = DiscoveryClientResource.newBuilder()
             .withRegistration(false)  // we don't need the registration thread for status change
             .withRegistryFetch(true)
@@ -52,19 +52,19 @@ public class DiscoveryClientEventBusTest {
     /**
      * Share server stub by all tests.
      */
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws IOException {
         eurekaHttpServer = new SimpleEurekaHttpServer(requestHandler);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         if (eurekaHttpServer != null) {
             eurekaHttpServer.shutdown();
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         reset(requestHandler);
         when(requestHandler.register(any(InstanceInfo.class))).thenReturn(EurekaHttpResponse.status(204));

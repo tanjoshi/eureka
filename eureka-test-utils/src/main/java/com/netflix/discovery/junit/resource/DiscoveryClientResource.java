@@ -31,12 +31,14 @@ import com.netflix.eventbus.impl.EventBusImpl;
 import com.netflix.eventbus.spi.EventBus;
 import com.netflix.eventbus.spi.InvalidSubscriberException;
 import com.netflix.eventbus.spi.Subscribe;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * JUnit rule for discovery client + collection of static methods for setting it up.
+ * JUnit 5 extension for discovery client + collection of static methods for setting it up.
  */
-public class DiscoveryClientResource extends ExternalResource {
+public class DiscoveryClientResource implements BeforeEachCallback, AfterEachCallback {
 
     public static final String REMOTE_REGION = "myregion";
     public static final String REMOTE_ZONE = "myzone";
@@ -187,12 +189,17 @@ public class DiscoveryClientResource extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void beforeEach(ExtensionContext context) throws Exception {
+        // No-op: resources are lazily initialized via getClient()
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
         if (client != null) {
             client.shutdown();
         }
         for (DiscoveryClientResource resource : forkedDiscoveryClientResources) {
-            resource.after();
+            resource.afterEach(context);
         }
         for (String property : SYSTEM_PROPERTY_TRACKER) {
             ConfigurationManager.getConfigInstance().clearProperty(property);
@@ -206,7 +213,7 @@ public class DiscoveryClientResource extends ExternalResource {
             public DiscoveryClientResource build() {
                 DiscoveryClientResource clientResource = super.build();
                 try {
-                    clientResource.before();
+                    clientResource.beforeEach(null);
                 } catch (Throwable e) {
                     throw new IllegalStateException("Unexpected error during forking the client resource", e);
                 }

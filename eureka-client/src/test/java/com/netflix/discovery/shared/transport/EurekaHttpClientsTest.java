@@ -48,14 +48,14 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.filter.ClientFilter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -93,7 +93,7 @@ public class EurekaHttpClientsTest {
 
     private final InstanceInfoGenerator instanceGen = InstanceInfoGenerator.newBuilder(2, 1).build();
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         clientConfig = mock(EurekaClientConfig.class);
         transportConfig = mock(EurekaTransportConfig.class);
@@ -120,7 +120,7 @@ public class EurekaHttpClientsTest {
                 ));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (writeServer != null) {
             writeServer.shutdown();

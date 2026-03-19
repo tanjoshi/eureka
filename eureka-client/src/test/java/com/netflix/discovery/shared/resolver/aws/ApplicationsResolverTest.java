@@ -5,15 +5,15 @@ import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.aws.ApplicationsResolver.ApplicationsSource;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 import com.netflix.discovery.util.InstanceInfoGenerator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -32,7 +32,7 @@ public class ApplicationsResolverTest {
     private String vipAddress;
     private ApplicationsResolver resolver;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(clientConfig.getEurekaServerURLContext()).thenReturn("context");
         when(clientConfig.getRegion()).thenReturn("region");

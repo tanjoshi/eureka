@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.netflix.appinfo.AmazonInfo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,9 +41,11 @@ public class StringInterningAmazonInfoBuilderTest {
         return new AmazonInfo(info.getName().name(), new HashMap<>(info.getMetadata()));
     }
 
-    @Test(expected = InvalidTypeIdException.class)
-    public void payloadThatIsEmpty() throws IOException {
-        newMapper().readValue("{}", AmazonInfo.class);
+    @Test
+    public void payloadThatIsEmpty() {
+        Assertions.assertThrows(InvalidTypeIdException.class, () -> {
+            newMapper().readValue("{}", AmazonInfo.class);
+        });
     }
 
     @Test
@@ -52,7 +54,7 @@ public class StringInterningAmazonInfoBuilderTest {
                 + "\"@class\": \"com.netflix.appinfo.AmazonInfo\""
                 + "}";
         AmazonInfo info = newMapper().readValue(json, AmazonInfo.class);
-        Assert.assertEquals(new AmazonInfo(), info);
+        Assertions.assertEquals(new AmazonInfo(), info);
     }
 
     @Test
@@ -68,7 +70,7 @@ public class StringInterningAmazonInfoBuilderTest {
         AmazonInfo expected = AmazonInfo.Builder.newBuilder()
                 .addMetadata(AmazonInfo.MetaDataKey.instanceId, "i-12345")
                 .build();
-        Assert.assertEquals(expected, nonCompact(info));
+        Assertions.assertEquals(expected, nonCompact(info));
     }
 
     @Test
@@ -84,7 +86,7 @@ public class StringInterningAmazonInfoBuilderTest {
         AmazonInfo expected = AmazonInfo.Builder.newBuilder()
                 .addMetadata(AmazonInfo.MetaDataKey.instanceId, "i-12345")
                 .build();
-        Assert.assertEquals(expected, nonCompact(info));
+        Assertions.assertEquals(expected, nonCompact(info));
     }
 
     @Test
@@ -101,7 +103,7 @@ public class StringInterningAmazonInfoBuilderTest {
         AmazonInfo expected = AmazonInfo.Builder.newBuilder()
                 .addMetadata(AmazonInfo.MetaDataKey.instanceId, "i-12345")
                 .build();
-        Assert.assertEquals(expected, nonCompact(info));
+        Assertions.assertEquals(expected, nonCompact(info));
     }
 
     @Test
@@ -118,7 +120,7 @@ public class StringInterningAmazonInfoBuilderTest {
         AmazonInfo expected = AmazonInfo.Builder.newBuilder()
                 .addMetadata(AmazonInfo.MetaDataKey.instanceId, "i-12345")
                 .build();
-        Assert.assertEquals(expected, nonCompact(info));
+        Assertions.assertEquals(expected, nonCompact(info));
     }
 
     @Test
@@ -137,6 +139,6 @@ public class StringInterningAmazonInfoBuilderTest {
         AmazonInfo expected = AmazonInfo.Builder.newBuilder()
                 .addMetadata(AmazonInfo.MetaDataKey.instanceId, "i-12345")
                 .build();
-        Assert.assertEquals(expected, nonCompact(info));
+        Assertions.assertEquals(expected, nonCompact(info));
     }
 }

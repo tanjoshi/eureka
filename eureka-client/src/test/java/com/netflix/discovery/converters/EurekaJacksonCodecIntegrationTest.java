@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.netflix.discovery.shared.Applications;
 
@@ -20,7 +20,7 @@ import com.netflix.discovery.shared.Applications;
  * this integration test parses the response of a Eureka discovery server,
  * specified by url via system property 'discovery.url'. It's useful for memory
  * utilization and performance tests, but since it's environment specific, the
- * tests below are @Ignore'd.
+ * tests below are @Disabled'd.
  *
  */
 @org.junit.Ignore

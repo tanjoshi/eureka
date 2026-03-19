@@ -1,14 +1,13 @@
 package com.netflix.discovery.shared.transport.jersey;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
@@ -16,9 +15,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,16 +29,18 @@ public class UnexpectedContentTypeTest {
     protected static final String CLIENT_APP_NAME = "unexpectedContentTypeTest";
     private JerseyApplicationClient jerseyHttpClient;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort()); // No-args constructor defaults to port 8080
+    private WireMockServer wireMockServer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
+        wireMockServer.start();
+
         TransportClientFactory clientFactory = JerseyEurekaHttpClientFactory.newBuilder()
                 .withClientName(CLIENT_APP_NAME)
                 .build();
 
-        String uri = String.format("http://localhost:%s/v2/", wireMockRule.port());
+        String uri = String.format("http://localhost:%s/v2/", wireMockServer.port());
 
         jerseyHttpClient = (JerseyApplicationClient) clientFactory.newClient(new DefaultEndpoint(uri));
     }
@@ -51,7 +50,7 @@ public class UnexpectedContentTypeTest {
         long lastDirtyTimestamp = System.currentTimeMillis();
         String uuid = UUID.randomUUID().toString();
 
-        stubFor(put(urlPathEqualTo("/v2/apps/" + CLIENT_APP_NAME + "/" + uuid))
+        wireMockServer.stubFor(put(urlPathEqualTo("/v2/apps/" + CLIENT_APP_NAME + "/" + uuid))
                 .withQueryParam("status", equalTo("UP"))
                 .withQueryParam("lastDirtyTimestamp", equalTo(lastDirtyTimestamp + ""))
                 .willReturn(aResponse()
@@ -65,7 +64,7 @@ public class UnexpectedContentTypeTest {
 
         EurekaHttpResponse<InstanceInfo> response = jerseyHttpClient.sendHeartBeat(CLIENT_APP_NAME, uuid, instanceInfo, null);
 
-        verify(putRequestedFor(urlPathEqualTo("/v2/apps/" + CLIENT_APP_NAME + "/" + uuid))
+        wireMockServer.verify(putRequestedFor(urlPathEqualTo("/v2/apps/" + CLIENT_APP_NAME + "/" + uuid))
                 .withQueryParam("status", equalTo("UP"))
                 .withQueryParam("lastDirtyTimestamp", equalTo(lastDirtyTimestamp + ""))
         );
@@ -74,10 +73,13 @@ public class UnexpectedContentTypeTest {
         assertThat(response.getEntity()).as("instance info").isNull();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (jerseyHttpClient != null) {
             jerseyHttpClient.shutdown();
+        }
+        if (wireMockServer != null) {
+            wireMockServer.stop();
         }
     }
 

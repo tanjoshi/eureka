@@ -5,7 +5,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
 import com.netflix.discovery.junit.resource.DiscoveryClientResource;
 import com.netflix.discovery.shared.Application;
-import org.junit.Rule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public abstract class BaseDiscoveryClientTester {
     public static final String LOCAL_REGION_APP3_NAME = "MYAPP3_LOC";
     public static final String LOCAL_REGION_APP3_INSTANCE1_HOSTNAME = "blahloc3-1";
 
-    @Rule
+    @RegisterExtension
     public MockRemoteEurekaServer mockLocalEurekaServer = new MockRemoteEurekaServer();
     protected EurekaClient client;
 

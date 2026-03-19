@@ -17,18 +17,18 @@ import com.netflix.eureka.resources.ASGResource.ASGStatus;
 import com.netflix.eureka.resources.DefaultServerCodecs;
 import com.netflix.eureka.resources.ServerCodecs;
 import com.netflix.eureka.transport.JerseyReplicationClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockserver.client.server.MockServerClient;
-import org.mockserver.junit.MockServerRule;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.socket.PortFactory;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -42,9 +42,9 @@ import static org.mockserver.model.HttpResponse.response;
  */
 public class JerseyReplicationClientTest {
 
-    @Rule
-    public MockServerRule serverMockRule = new MockServerRule(this);
+    private ClientAndServer mockServer;
     private MockServerClient serverMockClient;
+    private int mockServerPort;
 
     private JerseyReplicationClient replicationClient;
 
@@ -52,17 +52,23 @@ public class JerseyReplicationClientTest {
     private final ServerCodecs serverCodecs = new DefaultServerCodecs(config);
     private final InstanceInfo instanceInfo = ClusterSampleData.newInstanceInfo(1);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        mockServerPort = PortFactory.findFreePort();
+        mockServer = ClientAndServer.startClientAndServer(mockServerPort);
+        serverMockClient = new MockServerClient("localhost", mockServerPort);
         replicationClient = JerseyReplicationClient.createReplicationClient(
-                config, serverCodecs, "http://localhost:" + serverMockRule.getHttpPort() + "/eureka/v2"
+                config, serverCodecs, "http://localhost:" + mockServerPort + "/eureka/v2"
         );
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (serverMockClient != null) {
             serverMockClient.reset();
+        }
+        if (mockServer != null) {
+            mockServer.stop();
         }
     }
 

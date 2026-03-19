@@ -18,7 +18,8 @@ dependencies {
     // bring in jersey2 compatible eureka-core-jersey2 directly
     testImplementation project(':eureka-core-jersey2')
 
-    testImplementation "junit:junit:${junit_version}"
+    testImplementation platform("org.junit:junit-bom:${junit_version}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation "org.mock-server:mockserver-netty:${mockserverVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testRuntimeOnly 'org.slf4j:slf4j-simple:1.7.10'

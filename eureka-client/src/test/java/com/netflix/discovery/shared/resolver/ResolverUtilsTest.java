@@ -26,14 +26,14 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.resolver.aws.AwsEndpoint;
 import com.netflix.discovery.shared.resolver.aws.SampleCluster;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
